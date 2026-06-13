@@ -1,8 +1,8 @@
 local GameScripts = {
 
     [93978595733734] = "https://raw.githubusercontent.com/Dhammmm11/violence-district/main/main.lua",
-    
     [85050171250159] = "https://raw.githubusercontent.com/Dhammmm11/poop-a-big-poop-script/main/source.lua"
+    [122446657157717] = "https://raw.githubusercontent.com/Dhammmm11/sniperarena/refs/heads/main/main.lua"
 }
 
 local PlaceId = game.PlaceId
