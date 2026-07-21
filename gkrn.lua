@@ -649,10 +649,8 @@ local function _updateRangeCircles()
             _parryAdornee.Transparency = 0.55
             _parryAdornee.AlwaysOnTop = false
             _parryAdornee.CFrame = CFrame.new(0, -2.9, 0) * CFrame.Angles(math.pi / 2, 0, 0)
-            pcall(function()
-                _parryAdornee.Parent = (typeof(gethui) == "function" and gethui()) or
-                    game:GetService("CoreGui")
-            end)
+            pcall(function() _parryAdornee.Parent = (typeof(gethui) == "function" and gethui()) or
+                game:GetService("CoreGui") end)
         end
         _parryAdornee.Adornee = hrp
         local r = (Options.MaxRange and Options.MaxRange.Value) or 15
@@ -675,10 +673,8 @@ local function _updateRangeCircles()
             _dodgeAdornee.Transparency = 0.65
             _dodgeAdornee.AlwaysOnTop = false
             _dodgeAdornee.CFrame = CFrame.new(0, -2.85, 0) * CFrame.Angles(math.pi / 2, 0, 0)
-            pcall(function()
-                _dodgeAdornee.Parent = (typeof(gethui) == "function" and gethui()) or
-                    game:GetService("CoreGui")
-            end)
+            pcall(function() _dodgeAdornee.Parent = (typeof(gethui) == "function" and gethui()) or
+                game:GetService("CoreGui") end)
         end
         _dodgeAdornee.Adornee = hrp
         local r = (Options.MaxRangeDodge and Options.MaxRangeDodge.Value) or 20
@@ -830,7 +826,7 @@ TimingGroup:AddSlider("DodgeAngle", {
     Min = 30,
     Max = 135,
     Rounding = 0,
-    Suffix = "°",
+    Suffix = " deg",
     Tooltip =
     "Attacks more than this many degrees off your facing (left/right/rear) can't be parried, so dodge them. Lower = dodge more side attacks; higher = only dodge near-rear",
 })
@@ -1777,7 +1773,7 @@ local PlayerGroup = Tabs.Players:AddLeftGroupbox("Player Exploits")
 
 -- These toggles make the SERVER observe impossible actions (acting through a
 -- server-enforced cooldown/stun, teleporting, or landing always-perfect shots).
--- That is what gets accounts banned — not the core auto-parry/dodge, which only
+-- That is what gets accounts banned - not the core auto-parry/dodge, which only
 -- fire legitimate remotes at good timing (indistinguishable from a skilled human).
 local SAFE_BLOCKED = {
     NoParryCD          = "No Parry Cooldown",
@@ -3486,7 +3482,7 @@ local function makeChams(player, char)
     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     hl.FillColor = (Options.ChamsFillColorPicker and Options.ChamsFillColorPicker.Value) or Color3.fromRGB(255, 60, 60)
     hl.OutlineColor = (Options.ChamsOutlineColorPicker and Options.ChamsOutlineColorPicker.Value) or
-        Color3.fromRGB(255, 255, 255)
+    Color3.fromRGB(255, 255, 255)
     hl.FillTransparency = (Options.ChamsFillTrans and Options.ChamsFillTrans.Value) or 0.5
     hl.OutlineTransparency = 0
     hl.Adornee = char
@@ -3553,9 +3549,9 @@ task.spawn(function()
                     end
                     if hl then
                         hl.FillColor = (Options.ChamsFillColorPicker and Options.ChamsFillColorPicker.Value) or
-                            Color3.fromRGB(255, 60, 60)
+                        Color3.fromRGB(255, 60, 60)
                         hl.OutlineColor = (Options.ChamsOutlineColorPicker and Options.ChamsOutlineColorPicker.Value) or
-                            Color3.fromRGB(255, 255, 255)
+                        Color3.fromRGB(255, 255, 255)
                         hl.FillTransparency = (Options.ChamsFillTrans and Options.ChamsFillTrans.Value) or 0.5
                         hl.Enabled = true
                     end
@@ -3689,7 +3685,7 @@ do
             local ch = LocalPlayer.Character
             local tg = Toggles.HudM2Cooldown
             -- The game only builds the controls-hint rows (and you can only M2) while
-            -- combat is EQUIPPED — show nothing at all when holstered, so the floating
+            -- combat is EQUIPPED - show nothing at all when holstered, so the floating
             -- text never appears alongside/instead of the game's own hint.
             local equipped = ch and ch:GetAttribute("Equip") == true
             if not tg or not tg.Value or not equipped then
@@ -3812,7 +3808,7 @@ end
 
 --// ============================ Consolidated Attribute Stripping ============================
 -- One Heartbeat loop for NoStun/NoDodgeCD/InfStamina/NoRagdoll/NoBlur. MUST be declared
--- before the start/stop functions below that reference it — a later declaration makes
+-- before the start/stop functions below that reference it - a later declaration makes
 -- those functions compile against a nil global ("attempt to index nil with 'noRagdoll'").
 local function removeBlurs()
     local hasBlur = false
@@ -4145,47 +4141,45 @@ end
 _G._owehubGakuranUnload = _fullUnload
 Library:OnUnload(_fullUnload)
 
--- Create a floating "OweHub" toggle button at top-center of the screen for ALL devices (PC & Mobile)
-do
+--// ============================ Init ============================
+if isMobile then
     local sg = Instance.new("ScreenGui")
     mobileToggleGui = sg
-    sg.Name = "OweHubToggleBtn"
+    sg.Name = "OweHubMobileToggle"
     sg.ResetOnSpawn = false
     sg.DisplayOrder = 99999
     pcall(function() sg.Parent = (typeof(gethui) == "function" and gethui()) or game:GetService("CoreGui") end)
 
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 55, 0, 30)
-    btn.Position = UDim2.new(0.5, -27, 0, 8)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    btn.BorderColor3 = Color3.fromRGB(80, 80, 90)
+    btn.Size = UDim2.new(0, 45, 0, 45)
+    btn.Position = UDim2.new(0.5, -22, 0, 10)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.BorderColor3 = Color3.fromRGB(60, 60, 60)
     btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Text = "OweHub"
     btn.Font = Enum.Font.Code
-    btn.TextSize = 11
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    btn.TextSize = 10
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
     btn.Parent = sg
 
     btn.MouseButton1Click:Connect(function()
-        if Library and typeof(Library.Toggle) == "function" then
-            Library:Toggle()
-        end
+        Library:Toggle()
     end)
 
     local dragBtn, dStart, dPos
     btn.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
+        if inp.UserInputType == Enum.UserInputType.Touch then
             dragBtn = true; dStart = inp.Position; dPos = btn.Position
         end
     end)
     UserInputService.InputChanged:Connect(function(inp)
-        if dragBtn and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
+        if dragBtn and inp.UserInputType == Enum.UserInputType.Touch then
             local delta = inp.Position - dStart
             btn.Position = UDim2.new(dPos.X.Scale, dPos.X.Offset + delta.X, dPos.Y.Scale, dPos.Y.Offset + delta.Y)
         end
     end)
     UserInputService.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then dragBtn = false end
+        if inp.UserInputType == Enum.UserInputType.Touch then dragBtn = false end
     end)
 end
 
@@ -4203,9 +4197,5 @@ task.defer(function()
     end
 end)
 
-Library:Notify({
-    Title = "FoyiHub",
-    Description =
-    "Loaded: RightShift toggles the UI (or tap the FoyiHub_Configs button on mobile)",
-    Time = 4
-})
+Library:Notify({ Title = "FoyiHub", Description =
+"Loaded: RightShift toggles the UI (or tap the OweHub button on mobile)", Time = 4 })
