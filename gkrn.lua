@@ -735,6 +735,7 @@ end
 --// -------------------------------------------------------
 --// Auto Parry tab
 --// -------------------------------------------------------
+do
 local ParryGroup = Tabs.Main:AddLeftGroupbox("Parry")
 ParryGroup:AddToggle("AutoParry", {
     Text = "Auto Parry (master)",
@@ -783,6 +784,8 @@ ParryGroup:AddToggle("ExcludeContacts", {
     Default = true,
     Tooltip = "Skip auto-parry/dodge against attackers saved in your in-game phone contacts",
 })
+end
+do
 local TimingGroup = Tabs.Main:AddRightGroupbox("Timing")
 TimingGroup:AddSlider("TimingOffset", {
     Text = "Timing Offset (ms)",
@@ -831,6 +834,8 @@ TimingGroup:AddSlider("DodgeAngle", {
     "Attacks more than this many degrees off your facing (left/right/rear) can't be parried, so dodge them. Lower = dodge more side attacks; higher = only dodge near-rear",
 })
 
+end
+do
 local NotifGroup = Tabs.Main:AddLeftGroupbox("Notifs")
 NotifGroup:AddToggle("Notifications", {
     Text = "Notifications",
@@ -855,6 +860,8 @@ end
 --// -------------------------------------------------------
 --// Parries tab: Builder + Saved IDs + Logger (all in one)
 --// -------------------------------------------------------
+end
+do
 local BGroup = Tabs.Parries:AddLeftGroupbox("Parry Builder")
 BGroup:AddInput("BuilderAnimId", {
     Text = "Animation ID",
@@ -939,6 +946,8 @@ BGroup:AddButton({
 --// -------------------------------------------------------
 --// Saved IDs (right groupbox of the merged Parries tab)
 --// -------------------------------------------------------
+end
+do
 local SavedGroup = Tabs.Parries:AddRightGroupbox("Saved Parry IDs")
 
 local savedDropdown
@@ -1010,6 +1019,8 @@ refreshSavedDropdown()
 --// -------------------------------------------------------
 --// Animation Logger (left groupbox, below the Builder)
 --// -------------------------------------------------------
+end
+do
 local LoggerGroup = Tabs.Parries:AddLeftGroupbox("Animation Logger")
 LoggerGroup:AddToggle("LoggerVisible", {
     Text = "Show Logger Window",
@@ -1042,6 +1053,8 @@ LoggerGroup:AddLabel(
 --// -------------------------------------------------------
 --// Minigames tab
 --// -------------------------------------------------------
+end
+do
 local RhythmGroup = Tabs.Minigames:AddLeftGroupbox("Auto Rhythm")
 
 RhythmGroup:AddToggle("AutoRhythmToggle", {
@@ -1055,6 +1068,8 @@ RhythmGroup:AddLabel("RhythmStatus", {
     DoesWrap = true,
 })
 
+end
+do
 local rhythmSliderGroup = Tabs.Minigames:AddRightGroupbox("Hit Chance")
 local rhythmOrder = { "Perfect", "Good", "Okay", "Bad", "Miss" }
 local rhythmDefaults = { 70, 15, 10, 4, 1 }
@@ -1069,6 +1084,8 @@ for i, name in ipairs(rhythmOrder) do
     })
 end
 
+end
+do
 local BballGroup = Tabs.Minigames:AddLeftGroupbox("Basketball")
 BballGroup:AddToggle("AutoGreenShot", {
     Text = "Auto Green Shot",
@@ -1091,6 +1108,8 @@ BballGroup:AddLabel("Hold your shoot key/button as normal, the shot is released 
 --// -------------------------------------------------------
 --// Visuals tab - ESP group
 --// -------------------------------------------------------
+end
+do
 local ESPGroup = Tabs.Visuals:AddLeftGroupbox("Enemy ESP")
 ESPGroup:AddToggle("EnemyESP", {
     Text = "Enemy ESP",
@@ -1227,6 +1246,8 @@ local function _getOrCreateEffect(className, name)
     return obj
 end
 
+end
+do
 local SkyboxGroup = Tabs.World:AddLeftGroupbox("Skybox")
 
 SkyboxGroup:AddDropdown("SkyboxPreset", {
@@ -1254,6 +1275,8 @@ SkyboxGroup:AddToggle("RemoveExistingSky", {
     end,
 })
 
+end
+do
 local CameraGroup = Tabs.World:AddLeftGroupbox("Camera")
 CameraGroup:AddToggle("InfiniteZoom", {
     Text = "Infinite Zoom Out",
@@ -1267,6 +1290,8 @@ CameraGroup:AddToggle("InfiniteZoom", {
 --// -------------------------------------------------------
 --// Visuals tab - Lighting group
 --// -------------------------------------------------------
+end
+do
 local LightLeftGroup = Tabs.World:AddRightGroupbox("Lighting")
 
 local _fullbrightConn = nil
@@ -1316,6 +1341,8 @@ LightLeftGroup:AddToggle("NoShadows", {
 --// -------------------------------------------------------
 --// Visuals tab - Fog group
 --// -------------------------------------------------------
+end
+do
 local FogGroup = Tabs.World:AddLeftGroupbox("Fog")
 
 local _fogConn = nil
@@ -1429,6 +1456,8 @@ end)
 --// -------------------------------------------------------
 --// Visuals tab - Post-FX group
 --// -------------------------------------------------------
+end
+do
 local BloomGroup = Tabs.World:AddRightGroupbox("Bloom")
 
 BloomGroup:AddToggle("EnableBloom", {
@@ -1482,6 +1511,8 @@ end)
 --// -------------------------------------------------------
 --// Visuals tab - Effects group
 --// -------------------------------------------------------
+end
+do
 local EffectsGroup = Tabs.World:AddLeftGroupbox("Effects")
 
 EffectsGroup:AddToggle("EnableBlur", {
@@ -1593,6 +1624,8 @@ end)
 --// -------------------------------------------------------
 --// Visuals tab - Combat HUD group (health/stamina bars, M2 cooldown)
 --// -------------------------------------------------------
+end
+do
 local HUDGroup = Tabs.Visuals:AddRightGroupbox("Combat HUD")
 
 local _hudGui = nil
@@ -1769,6 +1802,8 @@ end
 --// -------------------------------------------------------
 --// Players tab
 --// -------------------------------------------------------
+end
+do
 local PlayerGroup = Tabs.Players:AddLeftGroupbox("Player Exploits")
 
 -- These toggles make the SERVER observe impossible actions (acting through a
@@ -1885,6 +1920,8 @@ PlayerGroup:AddToggle("NoParryCD", {
 --// -------------------------------------------------------
 --// Players tab - Respawn/death group
 --// -------------------------------------------------------
+end
+do
 local RespawnGroup = Tabs.Players:AddRightGroupbox("Respawn & Death")
 
 RespawnGroup:AddToggle("AutoRespawn", {
@@ -1908,6 +1945,8 @@ RespawnGroup:AddToggle("NoBlur", {
 --// -------------------------------------------------------
 --// Players tab - Teleport group
 --// -------------------------------------------------------
+end
+do
 local TeleportGroup = Tabs.Players:AddLeftGroupbox("Teleport")
 
 local function refreshTeleportDropdown()
@@ -1988,6 +2027,8 @@ Players.PlayerRemoving:Connect(function() refreshTeleportDropdown() end)
 --// -------------------------------------------------------
 --// UI Settings tab
 --// -------------------------------------------------------
+end
+do
 local MenuGroup = Tabs["UI Settings"]:AddLeftGroupbox("Menu")
 
 MenuGroup:AddButton({
@@ -2012,6 +2053,7 @@ SaveManager:SetFolder("Owehub/Gakuran")
 SaveManager:BuildConfigSection(Tabs["UI Settings"])
 ThemeManager:ApplyToTab(Tabs["UI Settings"])
 
+end
 --// ============================ Animation Logger (custom window) ============================
 createLoggerWindow = function()
     local logGui = Instance.new("ScreenGui")
