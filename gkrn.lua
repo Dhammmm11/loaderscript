@@ -1621,6 +1621,87 @@ Options.CCSaturation:OnChanged(function()
     if cc then cc.Saturation = Options.CCSaturation.Value end
 end)
 
+
+local _lowGraphicsConn = nil
+local _origMaterials = {}
+local _origTextures = {}
+
+local function _enableLowGraphics()
+    pcall(function()
+        local t = Workspace:FindFirstChildOfClass("Terrain")
+        if t then
+            t.WaterWaveSize = 0
+            t.WaterWaveSpeed = 0
+            t.WaterReflectance = 0
+            t.WaterTransparency = 0
+        end
+    end)
+    Lighting.GlobalShadows = false
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not obj:IsA("MeshPart") then
+            if not _origMaterials[obj] then _origMaterials[obj] = obj.Material end
+            obj.Material = Enum.Material.SmoothPlastic
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+            if not _origTextures[obj] then _origTextures[obj] = obj.Transparency end
+            obj.Transparency = 1
+        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            if not _origTextures[obj] then _origTextures[obj] = obj.Enabled end
+            obj.Enabled = false
+        end
+    end
+    if not _lowGraphicsConn then
+        _lowGraphicsConn = Workspace.DescendantAdded:Connect(function(obj)
+            if not (Toggles.LowGraphics and Toggles.LowGraphics.Value) then return end
+            if obj:IsA("BasePart") and not obj:IsA("MeshPart") then
+                obj.Material = Enum.Material.SmoothPlastic
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 1
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+                obj.Enabled = false
+            end
+        end)
+    end
+end
+
+local function _disableLowGraphics()
+    if _lowGraphicsConn then
+        _lowGraphicsConn:Disconnect()
+        _lowGraphicsConn = nil
+    end
+    for obj, mat in pairs(_origMaterials) do
+        if obj and obj.Parent then pcall(function() obj.Material = mat end) end
+    end
+    _origMaterials = {}
+    for obj, val in pairs(_origTextures) do
+        if obj and obj.Parent then
+            pcall(function()
+                if obj:IsA("Decal") or obj:IsA("Texture") then
+                    obj.Transparency = val
+                else
+                    obj.Enabled = val
+                end
+            end)
+        end
+    end
+    _origTextures = {}
+end
+
+
+
+do
+    local PerformanceGroup = Tabs.World:AddRightGroupbox("Performance Boost")
+    PerformanceGroup:AddToggle("LowGraphics", {
+        Text = "Low Graphics (Potato Mode)",
+        Default = false,
+        Tooltip = "Disable textures, shadows, particle effects & simplify materials to maximize FPS",
+        Callback = function(val)
+            if val then _enableLowGraphics() else _disableLowGraphics() end
+        end,
+    })
+end
+
+
+
 --// -------------------------------------------------------
 --// Visuals tab - Combat HUD group (health/stamina bars, M2 cooldown)
 --// -------------------------------------------------------
@@ -4167,7 +4248,8 @@ local function _fullUnload()
     if _attrStripConn then
         _attrStripConn:Disconnect(); _attrStripConn = nil
     end
-    if _visUnload then _visUnload() end
+    if _visUnload then _visUnload()
+    if _disableLowGraphics then _disableLowGraphics() end end
     for p in pairs(espObjects) do removeESP(p) end
     for p in pairs(chamsObjects) do removeChams(p) end
     for model, data in pairs(watched) do
