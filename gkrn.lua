@@ -467,51 +467,71 @@ local function buildAttackDB()
     local anims = ReplicatedStorage:FindFirstChild("Animations")
     local combat = anims and anims:FindFirstChild("Combat")
     if not combat then return end
-    local m1idx = { ["1stM1"] = 1, ["2ndM1"] = 2, ["3rdM1"] = 3, ["4thM1"] = 4 }
-    for _, styleFolder in ipairs(combat:GetChildren()) do
-        if styleFolder:IsA("Folder") then
-            local styleName = styleFolder.Name:gsub("Anims$", "")
-            local styleKey = string.lower(styleName)
-            for _, a in ipairs(styleFolder:GetChildren()) do
-                if a:IsA("Animation") then
-                    local id = a.AnimationId:match("%d+")
+
+    local m1idx = {
+        ["1stm1"] = 1, ["1st_m1"] = 1, ["m1_1"] = 1, ["jab"] = 1,
+        ["2ndm1"] = 2, ["2nd_m1"] = 2, ["m1_2"] = 2, ["cross"] = 2,
+        ["3rdm1"] = 3, ["3rd_m1"] = 3, ["m1_3"] = 3, ["hook"] = 3,
+        ["4thm1"] = 4, ["4th_m1"] = 4, ["m1_4"] = 4, ["uppercut"] = 4,
+    }
+
+    local function scanFolder(folder, currentStyleName)
+        for _, obj in ipairs(folder:GetChildren()) do
+            if obj:IsA("Folder") then
+                local nextStyle = currentStyleName or obj.Name:gsub("Anims$", "")
+                scanFolder(obj, nextStyle)
+            elseif obj:IsA("Animation") then
+                local id = obj.AnimationId:match("%d+")
+                if id then
                     local delay, kind, idx
-                    idx = m1idx[a.Name]
-                    if idx and typeof(CombatConfig.GetScaledStyleM1HitboxDelay) == "function" then
-                        kind = "M1"
-                        local ok, v = pcall(CombatConfig.GetScaledStyleM1HitboxDelay, styleKey, idx, 1)
-                        if ok and typeof(v) == "number" and v > 0 then delay = v else delay = 0.35 end
-                    elseif a.Name == "M2" and typeof(CombatConfig.GetStyleM2HitboxDelay) == "function" then
-                        kind = "M2"
-                        local ok, raw = pcall(CombatConfig.GetStyleM2HitboxDelay, styleKey)
-                        if ok and typeof(CombatConfig.GetScaledHitboxDelay) == "function" then
-                            local ok2, v = pcall(CombatConfig.GetScaledHitboxDelay, raw, 1)
-                            if ok2 and typeof(v) == "number" and v > 0 then delay = v else delay = 0.45 end
-                        elseif ok and typeof(raw) == "number" and raw > 0 then
-                            delay = raw
-                        else
-                            delay = 0.45
-                        end
-                    elseif a.Name == "MomentumM2" and typeof(CombatConfig.GetStyleM2HitboxDelay) == "function" then
-                        kind = "M2M"
-                        local ok, raw = pcall(CombatConfig.GetStyleM2HitboxDelay, styleKey, true)
-                        if ok and typeof(CombatConfig.GetScaledHitboxDelay) == "function" then
-                            local ok2, v = pcall(CombatConfig.GetScaledHitboxDelay, raw, 1)
-                            if ok2 and typeof(v) == "number" and v > 0 then delay = v else delay = 0.45 end
-                        elseif ok and typeof(raw) == "number" and raw > 0 then
-                            delay = raw
-                        else
-                            delay = 0.45
+                    local lowerName = string.lower(obj.Name)
+                    idx = m1idx[lowerName]
+
+                    if not idx then
+                        if lowerName:find("1") or lowerName:find("first") then idx = 1
+                        elseif lowerName:find("2") or lowerName:find("second") then idx = 2
+                        elseif lowerName:find("3") or lowerName:find("third") then idx = 3
+                        elseif lowerName:find("4") or lowerName:find("fourth") then idx = 4
                         end
                     end
-                    if id and typeof(delay) == "number" and delay > 0 and not AttackDB[id] then
-                        AttackDB[id] = { name = styleName .. "/" .. a.Name, delay = delay, kind = kind, style = styleKey, idx = (idx ~= nil and idx or nil) }
+
+                    local styleKey = string.lower(currentStyleName or "boxing")
+
+                    if lowerName:find("m1") or idx then
+                        kind = "M1"
+                        idx = idx or 1
+                        local ok, v = pcall(CombatConfig.GetScaledStyleM1HitboxDelay, styleKey, idx, 1)
+                        if ok and typeof(v) == "number" and v > 0 then delay = v else delay = 0.30 end
+                    elseif lowerName:find("m2") or lowerName:find("heavy") then
+                        kind = lowerName:find("momentum") and "M2M" or "M2"
+                        local isMomentum = (kind == "M2M")
+                        local ok, raw = pcall(CombatConfig.GetStyleM2HitboxDelay, styleKey, isMomentum)
+                        if ok and typeof(CombatConfig.GetScaledHitboxDelay) == "function" then
+                            local ok2, v = pcall(CombatConfig.GetScaledHitboxDelay, raw, 1)
+                            if ok2 and typeof(v) == "number" and v > 0 then delay = v else delay = 0.40 end
+                        elseif ok and typeof(raw) == "number" and raw > 0 then
+                            delay = raw
+                        else
+                            delay = 0.40
+                        end
+                    end
+
+                    if typeof(delay) == "number" and delay > 0 and not AttackDB[id] then
+                        AttackDB[id] = {
+                            name = (currentStyleName or "Combat") .. "/" .. obj.Name,
+                            delay = delay,
+                            kind = kind,
+                            style = styleKey,
+                            idx = idx
+                        }
                         AttackDBCount += 1
                     end
                 end
             end
         end
     end
+
+    scanFolder(combat, nil)
 end
 buildAttackDB()
 
