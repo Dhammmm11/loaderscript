@@ -2982,15 +2982,12 @@ local function onAnimationPlayed(model, track)
     if track.Looped then return end
     if category == "Movement" then return end
 
-    -- Ignore enemy Evasive / Dash / Dodge animations so Auto-Parry never triggers on dodges
-    local animNameLower = (anim.Name or ""):lower()
-    if animNameLower:find("evasive") or animNameLower:find("dash") or animNameLower:find("dodge") or animNameLower:find("roll") or animNameLower:find("feint") then
-        return
-    end
-
-    -- Ignore if attacker is currently in an Evasive dash (i-framed)
-    if model:GetAttribute("IFRAMECD") == true or model:GetAttribute("Evasive") == true or model:GetAttribute("DodgeCooldown") == true then
-        return
+    -- Ignore pure Evasive/Dash animations if they are not M1/M2 attack animations
+    local rawAnimName = anim.Name or ""
+    if rawAnimName == "Evasive" or rawAnimName == "Dash" or rawAnimName == "BackDash" or rawAnimName == "FrontDash" then
+        if not Config.parries[id] then
+            return
+        end
     end
 
     -- Don't parry/dodge while combat is holstered (game requires Equip to block anyway).
