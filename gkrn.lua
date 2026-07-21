@@ -1625,6 +1625,103 @@ end)
 local _lowGraphicsConn = nil
 local _origMaterials = {}
 local _origTextures = {}
+local _origShadows = {}
+local _origDisabledSA = {}
+
+local function _processLowGfxObject(obj)
+    if obj:IsA("BasePart") then
+        if not _origMaterials[obj] then _origMaterials[obj] = obj.Material end
+        if not _origShadows[obj] then _origShadows[obj] = obj.CastShadow end
+        pcall(function()
+            obj.Material = Enum.Material.SmoothPlastic
+            obj.CastShadow = false
+            obj.Reflectance = 0
+        end)
+    elseif obj:IsA("SurfaceAppearance") then
+        if not _origDisabledSA[obj] then _origDisabledSA[obj] = obj.Parent end
+        pcall(function() obj.Enabled = false end)
+    elseif obj:IsA("Decal") or obj:IsA("Texture") then
+        if not _origTextures[obj] then _origTextures[obj] = obj.Transparency end
+        pcall(function() obj.Transparency = 1 end)
+    elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+        if not _origTextures[obj] then _origTextures[obj] = obj.Enabled end
+        pcall(function() obj.Enabled = false end)
+    elseif obj:IsA("Light") then
+        if not _origShadows[obj] then _origShadows[obj] = obj.Shadows end
+        pcall(function() obj.Shadows = false end)
+    end
+end
+
+local function _enableLowGraphics()
+    pcall(function()
+        Lighting.GlobalShadows = false
+        Lighting.EnvironmentSpecularScale = 0
+        Lighting.EnvironmentDiffuseScale = 0
+    end)
+    pcall(function()
+        local t = Workspace:FindFirstChildOfClass("Terrain")
+        if t then
+            t.WaterWaveSize = 0
+            t.WaterWaveSpeed = 0
+            t.WaterReflectance = 0
+            t.WaterTransparency = 0
+        end
+    end)
+    pcall(function()
+        local settingsObj = settings()
+        if settingsObj and settingsObj.Rendering then
+            settingsObj.Rendering.QualityLevel = Enum.QualityLevel.Level01
+        end
+    end)
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        _processLowGfxObject(obj)
+    end
+    if not _lowGraphicsConn then
+        _lowGraphicsConn = Workspace.DescendantAdded:Connect(function(obj)
+            if not (Toggles.LowGraphics and Toggles.LowGraphics.Value) then return end
+            _processLowGfxObject(obj)
+        end)
+    end
+end
+
+local function _disableLowGraphics()
+    if _lowGraphicsConn then
+        _lowGraphicsConn:Disconnect()
+        _lowGraphicsConn = nil
+    end
+    for obj, mat in pairs(_origMaterials) do
+        if obj and obj.Parent then pcall(function() obj.Material = mat end) end
+    end
+    _origMaterials = {}
+    for obj, shd in pairs(_origShadows) do
+        if obj and obj.Parent then
+            pcall(function()
+                if obj:IsA("BasePart") then
+                    obj.CastShadow = shd
+                elseif obj:IsA("Light") then
+                    obj.Shadows = shd
+                end
+            end)
+        end
+    end
+    _origShadows = {}
+    for obj, val in pairs(_origTextures) do
+        if obj and obj.Parent then
+            pcall(function()
+                if obj:IsA("Decal") or obj:IsA("Texture") then
+                    obj.Transparency = val
+                else
+                    obj.Enabled = val
+                end
+            end)
+        end
+    end
+    _origTextures = {}
+    for sa, _ in pairs(_origDisabledSA) do
+        if sa and sa.Parent then pcall(function() sa.Enabled = true end) end
+    end
+    _origDisabledSA = {}
+end
 
 local function _enableLowGraphics()
     pcall(function()
@@ -3936,18 +4033,22 @@ end
 local function removeBlurs()
     local hasBlur = false
     for _, obj in ipairs(Lighting:GetChildren()) do
-        if obj:IsA("BlurEffect") or obj:IsA("ColorCorrectionEffect") then
+        if obj:IsA("BlurEffect") or obj:IsA("DepthOfFieldEffect") then
             if obj.Enabled then
-                obj.Enabled = false; hasBlur = true
+                obj.Enabled = false
+                pcall(function() obj.Size = 0 end)
+                hasBlur = true
             end
         end
     end
     local cam = Workspace.CurrentCamera
     if cam then
         for _, obj in ipairs(cam:GetChildren()) do
-            if obj:IsA("BlurEffect") or obj:IsA("ColorCorrectionEffect") then
+            if obj:IsA("BlurEffect") or obj:IsA("DepthOfFieldEffect") then
                 if obj.Enabled then
-                    obj.Enabled = false; hasBlur = true
+                    obj.Enabled = false
+                    pcall(function() obj.Size = 0 end)
+                    hasBlur = true
                 end
             end
         end
